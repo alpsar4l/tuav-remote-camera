@@ -15,6 +15,7 @@ app.config["SECRET_KEY"] = "secret!"
 app.config["DEBUG"] = True
 socketio = SocketIO(app)
 save_video = False
+count = 0
 
 
 @app.route("/")
@@ -25,31 +26,36 @@ def index():
 @app.route("/record_video")
 def video_record():
     global save_video
-    save_video = True
-    print("Video kaydı başlatılıyor (6)")
-    # time.sleep(6)
+    global count
 
-    def stop():
+    def stop_record():
         global save_video
         save_video = False
+        
+    save_video = True
 
-    Timer(6, stop).start()
-
+    print("Video kaydı başlatılıyor (6)")
+    count = 0
+    Timer(6, stop_record).start()
     print("Video kaydı bitti (6)")
+
     return "tamam."
 
 
 @socketio.on("image")
 def send_data(image):
     global save_video
+    global count
     presentDate = datetime.datetime.now()
     unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
 
     print(save_video)
 
     if save_video:
-        with open(f"./video/frame-{unix_timestamp}.png", "wb") as fh:
+        count = count + 1
+        with open(f"./video/frame-{count}-{unix_timestamp}.png", "wb") as fh:
             fh.write(base64.decodebytes(image))
+
 
     socketio.emit("show image", image.decode("UTF-8").strip())
 
