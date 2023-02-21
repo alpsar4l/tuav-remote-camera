@@ -5,8 +5,14 @@
 }
 
 body {
-    background: #dfaa1f;
+    background: linear-gradient(45deg, #1fd2df, #44bbc4);
     font-family: Arial, sans-serif;
+}
+
+#logo {
+    height: 50px;
+    margin-bottom: 20px;
+    pointer-events: none;
 }
 
 .center {
@@ -27,12 +33,51 @@ body {
 }
 
 #drone_camera {
-    border-radius: 0px;
+    border-radius: 30px;
     width: 100%;
-    height: 510px;
-    background: aliceblue;
+    height: 480px;
+    background: rgba(22, 142, 151, 0.19);
     margin-top: 20px;
     outline: none;
     object-fit: cover;
-    border: 15px solid #000;
+    box-shadow: 0 0 10px 4px rgba(0, 0, 0, 0.52);
+}
+
+.status {
+    margin-top: 30px;
+    font-size: 24px;
+    font-family: "Arial", sans-serif;
+    font-weight: Bold;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    grid-gap: 5px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    user-select: none;
+}
+
+.status div {
+    height: 26px;
+    width: 26px;
+    border-radius: 100%;
+}
+
+#live {
+    color: #adff63;
+    background: #000;
+    display: none;
+}
+
+#live div {
+    background-color: #adff63;
+}
+
+#offline {
+    color: #ff6363;
+    background: #000;
+}
+
+#offline div {
+    background-color: #ff6363;
 }

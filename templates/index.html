@@ -11,7 +11,10 @@
     <body>
         <div class="app">
             <div class="center">
+                <img id="logo" src="/static/tuav.png" alt="">
                 <img id="drone_camera" src="" alt="">
+                <div id="live" class="status"><div></div>Canlı</div>
+                <div id="offline" class="status"><div></div>Görüntü Yayını Yok</div>
             </div>
         </div>
     </body>
@@ -19,12 +22,25 @@
     <script src="/static/socket.io.js"></script>
     <script type="text/javascript" charset="utf-8">
         const socket = io();
+        let lastReceiveTime = 0;
+        let timeout = undefined;
 
         socket.on("connect", function() {
             console.log("socket'e bağlanıldı")
 
             socket.on("show image", (data) => {
+                clearTimeout(timeout);
+                lastReceiveTime = Math.floor(Date.now() / 1000);
+
                 document.getElementById("drone_camera").src = `data:image/jpg;base64,${data}`;
+
+                document.getElementById("live").style.display = "flex";
+                document.getElementById("offline").style.display = "none";
+
+                timeout = setTimeout(() => {
+                    document.getElementById("offline").style.display = "flex";
+                    document.getElementById("live").style.display = "none";
+                }, 3000);
             });
         });
     </script>
