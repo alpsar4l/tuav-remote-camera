@@ -1,3 +1,5 @@
+import os
+
 import flask
 from flask import Flask
 import serial
@@ -7,15 +9,19 @@ import numpy as np
 import base64
 import datetime
 
+from engineio.payload import Payload
 from threading import Timer
 from flask_socketio import SocketIO, emit
 
+
+Payload.max_decode_packets = 1000
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "secret!"
 app.config["DEBUG"] = True
-socketio = SocketIO(app)
+socketio = SocketIO(app, ping_timeout=100000, ping_interval=5000)
 save_video = False
 count = 0
+new_folder_name = "hey"
 
 
 @app.route("/")
@@ -26,6 +32,7 @@ def index():
 @app.route("/record_video")
 def video_record():
     global save_video
+    global new_folder_name
     global count
 
     def stop_record():
@@ -33,11 +40,13 @@ def video_record():
         save_video = False
         
     save_video = True
+    new_folder_name = datetime.datetime.now()
+    os.makedirs(f"video/{new_folder_name}/")
 
-    print("Video kaydı başlatılıyor (6)")
+    print("Video kaydı başlatılıyor (6 saniye)")
     count = 0
     Timer(6, stop_record).start()
-    print("Video kaydı bitti (6)")
+    print("Video kaydı bitti (6 saniye)")
 
     return "tamam."
 
@@ -49,13 +58,10 @@ def send_data(image):
     presentDate = datetime.datetime.now()
     unix_timestamp = datetime.datetime.timestamp(presentDate) * 1000
 
-    print(save_video)
-
     if save_video:
         count = count + 1
-        with open(f"./video/frame-{count}-{unix_timestamp}.png", "wb") as fh:
+        with open(f"./video/{new_folder_name}/frame-{count}-{unix_timestamp}.png", "wb") as fh:
             fh.write(base64.decodebytes(image))
-
 
     socketio.emit("show image", image.decode("UTF-8").strip())
 

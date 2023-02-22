@@ -2,17 +2,19 @@ import time
 import socketio
 import cv2
 import base64
+import datetime
 
 
+camera_way = 0
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(camera_way)
 sio = socketio.Client()
 
 
 @sio.event
 def connect():
     global camera
-    camera = cv2.VideoCapture(0)
+    camera = cv2.VideoCapture(camera_way)
     print("bağlantı kuruldu")
 
 
@@ -33,7 +35,14 @@ while True:
     success, frame = camera.read()
 
     if success:
-        # frame = cv2.resize(frame, (640, 350), interpolation=cv2.INTER_AREA)
+        height = frame.shape[0]
+        width = frame.shape[1]
+
+        scale_factor = 0.5
+        new_height = int(height * scale_factor)
+        new_width = int(width * scale_factor)
+
+        frame = cv2.resize(frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
         frame = cv2.flip(frame, 1, 0)
 
         """
@@ -46,4 +55,4 @@ while True:
         result, frame = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 20])
         data = base64.b64encode(frame)
         sio.emit("image", data)
-        print("kamera okunuyor")
+        print(datetime.datetime.now())
